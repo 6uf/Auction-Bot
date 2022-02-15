@@ -249,7 +249,8 @@ var (
 				if !CheckAdmin(i, s) {
 					return
 				} else {
-					Data.IDs = append(Data.IDs, i.ApplicationCommandData().Options[0].RoleValue(s, i.GuildID).ID)
+					Role := i.ApplicationCommandData().Options[0].RoleValue(s, i.GuildID)
+					Data.IDs = append(Data.IDs, Role.ID)
 
 					Data.SaveConfig()
 					Data.LoadState()
@@ -261,7 +262,7 @@ var (
 								{
 									Author:      &discordgo.MessageEmbedAuthor{},
 									Color:       000000, // Green
-									Description: "```Succesfully added moderator to config```",
+									Description: fmt.Sprintf("```Succesfully added %v to config```", Role.Name),
 								},
 							},
 							Flags: 1 << 6,
