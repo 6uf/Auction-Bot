@@ -418,9 +418,13 @@ var (
 											}); err != nil {
 												fmt.Println(err)
 											}
+											var content string
+											for _, roles := range Data.IDs {
+												content += fmt.Sprintf("<@&%v> ", roles)
+											}
 
 											s.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
-												Content: "@here",
+												Content: content,
 												Embeds: []*discordgo.MessageEmbed{
 													{
 														Author:      &discordgo.MessageEmbedAuthor{},
