@@ -304,6 +304,8 @@ var (
 					for _, data := range Data.Data {
 						if data.ChannelID != i.ChannelID {
 							update = append(update, data)
+						} else {
+							s.ChannelDelete(i.ChannelID)
 						}
 					}
 
@@ -311,7 +313,7 @@ var (
 					Data.SaveConfig()
 					Data.LoadState()
 
-					s.ChannelDelete(i.ChannelID)
+					s.ChannelMessageSend(i.ChannelID, "Couldnt delete channel, it isnt a auction.")
 				}
 			}()
 		},
@@ -485,9 +487,15 @@ func CheckAdmin(i *discordgo.InteractionCreate, s *discordgo.Session) bool {
 		if guild.OwnerID == id {
 			return true
 		} else {
-			for _, client := range Data.IDs {
-				if id == client {
-					return true
+			if member, err := s.GuildMember(i.GuildID, id); err != nil {
+				fmt.Println(err)
+			} else {
+				for _, roles := range guild.Roles {
+					for _, memberRole := range member.Roles {
+						if memberRole == roles.ID {
+							return true
+						}
+					}
 				}
 			}
 		}
