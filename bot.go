@@ -52,7 +52,7 @@ var (
 			},
 		},
 		{
-			Name:        "done",
+			Name:        "delete-auction",
 			Description: "Delete a auctions channel.",
 		},
 		{
@@ -76,9 +76,25 @@ var (
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"auction-create": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
+				var id string
+
+				if i.Member == nil {
+					id = i.User.ID
+				} else {
+					id = i.Member.User.ID
+				}
+
 				if !CheckAdmin(i, s) {
+					if member, err := s.GuildMember(i.GuildID, id); err == nil {
+						fmt.Printf("[auction-create]@%v - User used command Unsuccesfully.\n", member.User.Username)
+					}
+
 					return
 				} else {
+					if member, err := s.GuildMember(i.GuildID, id); err == nil {
+						fmt.Printf("[auction-create]@%v - User used command succesfully.\n", member.User.Username)
+					}
+
 					err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseModal,
 						Data: &discordgo.InteractionResponseData{
@@ -137,6 +153,10 @@ var (
 					id = i.User.ID
 				} else {
 					id = i.Member.User.ID
+				}
+
+				if member, err := s.GuildMember(i.GuildID, id); err == nil {
+					fmt.Printf("[bid]@%v - User used command succesfully.\n", member.User.Username)
 				}
 
 				if len(Data.Data) != 0 {
@@ -246,9 +266,25 @@ var (
 		},
 		"add-staff": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
+				var id string
+
+				if i.Member == nil {
+					id = i.User.ID
+				} else {
+					id = i.Member.User.ID
+				}
+
 				if !CheckAdmin(i, s) {
+					if member, err := s.GuildMember(i.GuildID, id); err == nil {
+						fmt.Printf("[add-staff]@%v - User used command Unsuccesfully.\n", member.User.Username)
+					}
+
 					return
 				} else {
+					if member, err := s.GuildMember(i.GuildID, id); err == nil {
+						fmt.Printf("[add-staff]@%v - User used command succesfully.\n", member.User.Username)
+					}
+
 					Role := i.ApplicationCommandData().Options[0].RoleValue(s, i.GuildID)
 					Data.IDs = append(Data.IDs, Role.ID)
 
@@ -273,9 +309,25 @@ var (
 		},
 		"remove-staff": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
+				var id string
+
+				if i.Member == nil {
+					id = i.User.ID
+				} else {
+					id = i.Member.User.ID
+				}
+
 				if !CheckAdmin(i, s) {
+					if member, err := s.GuildMember(i.GuildID, id); err == nil {
+						fmt.Printf("[remove-staff]@%v - User used command Unsuccesfully.\n", member.User.Username)
+					}
+
 					return
 				} else {
+					if member, err := s.GuildMember(i.GuildID, id); err == nil {
+						fmt.Printf("[remove-staff]@%v - User used command succesfully.\n", member.User.Username)
+					}
+
 					Data.IDs = remove(Data.IDs, i.ApplicationCommandData().Options[0].RoleValue(s, i.GuildID).ID)
 					Data.SaveConfig()
 					Data.LoadState()
@@ -296,11 +348,27 @@ var (
 				}
 			}()
 		},
-		"done": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		"delete-auction": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
+				var id string
+
+				if i.Member == nil {
+					id = i.User.ID
+				} else {
+					id = i.Member.User.ID
+				}
+
 				if !CheckAdmin(i, s) {
+					if member, err := s.GuildMember(i.GuildID, id); err == nil {
+						fmt.Printf("[delete-auction]@%v - User used command Unsuccesfully.\n", member.User.Username)
+					}
+
 					return
 				} else {
+					if member, err := s.GuildMember(i.GuildID, id); err == nil {
+						fmt.Printf("[delete-auction]@%v - User used command succesfully.\n", member.User.Username)
+					}
+
 					var update []Info
 					for _, data := range Data.Data {
 						if data.ChannelID != i.ChannelID {
@@ -320,9 +388,27 @@ var (
 		},
 		"revert-user": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
+				var id string
+
+				if i.Member == nil {
+					id = i.User.ID
+				} else {
+					id = i.Member.User.ID
+				}
+
 				if !CheckAdmin(i, s) {
+
+					if member, err := s.GuildMember(i.GuildID, id); err == nil {
+						fmt.Printf("[revert-user]@%v - User used command Unsuccesfully.\n", member.User.Username)
+					}
+
 					return
 				} else {
+
+					if member, err := s.GuildMember(i.GuildID, id); err == nil {
+						fmt.Printf("[revert-user]@%v - User used command succesfully.\n", member.User.Username)
+					}
+
 					var id = i.ApplicationCommandData().Options[0].UserValue(s).ID
 					var update []History
 					for e, data := range Data.Data {
@@ -383,9 +469,25 @@ var (
 		},
 		"bin-name": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
+				var id string
+
+				if i.Member == nil {
+					id = i.User.ID
+				} else {
+					id = i.Member.User.ID
+				}
+
 				if !CheckAdmin(i, s) {
+					if member, err := s.GuildMember(i.GuildID, id); err == nil {
+						fmt.Printf("[bin-name]@%v - User used command Unsuccesfully.\n", member.User.Username)
+					}
+
 					return
 				} else {
+					if member, err := s.GuildMember(i.GuildID, id); err == nil {
+						fmt.Printf("[bin-name]@%v - User used command succesfully.\n", member.User.Username)
+					}
+
 					for value, data := range Data.Data {
 						if data.History != nil {
 							if data.ChannelID == i.ChannelID {

@@ -63,6 +63,16 @@ func init() {
     Ver: 2.25
 Made By: Liza
 
+Commands :
+             
+/add-staff
+/auction-create
+/bid
+/bin-name
+/delete-auction
+/remove-staff
+/revert-user
+
 `)
 	Data.LoadState()
 }
