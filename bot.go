@@ -193,7 +193,7 @@ var (
 										s.ChannelMessageEditEmbed(Info.ChannelID, Info.MessageID, &discordgo.MessageEmbed{
 											Author:      &discordgo.MessageEmbedAuthor{},
 											Color:       000000, // Green
-											Description: fmt.Sprintf("`%v`\nCurrent Bid: `$%v` ~ <@%v>\n\n```%v```\nHow to bid?\nUse the `/bid` command.", Info.Name, i.ApplicationCommandData().Options[0].IntValue(), id, Info.Info)})
+											Description: fmt.Sprintf("`%v`\nCurrent Bid: `$%v` ~ <@%v>\n\n```diff\n%v```\nHow to bid?\nUse the `/bid` command.", Info.Name, i.ApplicationCommandData().Options[0].IntValue(), id, Info.Info)})
 									} else {
 										s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 											Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -341,12 +341,17 @@ var (
 							Data.SaveConfig()
 							Data.LoadState()
 
-							s.ChannelMessageEditEmbed(data.ChannelID, data.MessageID, &discordgo.MessageEmbed{
-								Author:      &discordgo.MessageEmbedAuthor{},
-								Color:       000000, // Green
-								Description: fmt.Sprintf("`%v`\nCurrent Bid: `$%v` ~ <@%v>\n\n```%v```\nHow to bid?\nUse the `/bid` command.", data.History[len(data.History)].Bidder, data.History[len(data.History)].Bid, id, data.Info)})
+							for _, data := range Data.Data {
+								if data.ChannelID == i.ChannelID {
+									s.ChannelMessageEditEmbed(data.ChannelID, data.MessageID, &discordgo.MessageEmbed{
+										Author:      &discordgo.MessageEmbedAuthor{},
+										Color:       000000, // Green
+										Description: fmt.Sprintf("`%v`\nCurrent Bid: `$%v` ~ <@%v>\n\n```diff\n%v```\nHow to bid?\nUse the `/bid` command.", data.Name, data.History[len(data.History)-1].Bid, data.History[len(data.History)-1].Bidder, data.Info)})
+									break
+								}
+							}
 
-							break
+							return
 						}
 					}
 				}

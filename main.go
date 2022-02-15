@@ -168,7 +168,7 @@ func main() {
 						if message, err := s.ChannelMessageSendEmbed(complex.ID, &discordgo.MessageEmbed{
 							Author:      &discordgo.MessageEmbedAuthor{},
 							Color:       000000, // Green
-							Description: fmt.Sprintf("`%v`\nStarting Bid: `$%v`\n\n```%v```\nHow to bid?\nUse the `/bid` command.", User, Price, Information),
+							Description: fmt.Sprintf("`%v`\nStarting Bid: `$%v`\n\n```diff\n%v```\nHow to bid?\nUse the `/bid` command.", User, Price, Information),
 						},
 						); err == nil {
 							Data.Data = append(Data.Data, Info{
