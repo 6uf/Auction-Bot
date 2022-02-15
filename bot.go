@@ -3,11 +3,9 @@ package main
 import (
 	"fmt"
 	"sort"
-	"strconv"
-	"strings"
 	"time"
 
-	"github.com/bwmarrin/discordgo"
+	discordgo "github.com/Liza-Developer/tempbuild"
 )
 
 var (
@@ -15,32 +13,7 @@ var (
 		{
 			Name:        "auction-create",
 			Description: "Enter your names information.",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "name",
-					Description: "Delay to use.",
-					Required:    true,
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "type",
-					Description: "What does the account have?",
-					Required:    true,
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "price",
-					Description: "What is the current offer of the account?",
-					Required:    true,
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "information",
-					Description: "BIN? Bans? Ranks?",
-					Required:    true,
-				},
-			},
+			Type:        discordgo.ChatApplicationCommand,
 		},
 		{
 			Name:        "bid",
@@ -55,11 +28,11 @@ var (
 			},
 		},
 		{
-			Name:        "add-mod",
+			Name:        "add-staff",
 			Description: "Add moderator to the config.",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionMentionable,
+					Type:        discordgo.ApplicationCommandOptionRole,
 					Name:        "role-name",
 					Description: "Role to authenticate",
 					Required:    true,
@@ -67,11 +40,11 @@ var (
 			},
 		},
 		{
-			Name:        "remove-mod",
+			Name:        "remove-staff",
 			Description: "Remove moderator from the config",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
-					Type:        discordgo.ApplicationCommandOptionMentionable,
+					Type:        discordgo.ApplicationCommandOptionRole,
 					Name:        "role-name",
 					Description: "Role to remove",
 					Required:    true,
@@ -88,8 +61,8 @@ var (
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionMentionable,
-					Name:        "role-name",
-					Description: "Role to remove",
+					Name:        "user",
+					Description: "User to revert",
 					Required:    true,
 				},
 			},
@@ -106,165 +79,52 @@ var (
 				if !CheckAdmin(i, s) {
 					return
 				} else {
-					name := i.ApplicationCommandData().Options[0].StringValue()
-					types := i.ApplicationCommandData().Options[1].StringValue()
-					price := i.ApplicationCommandData().Options[2].StringValue()
-					info := i.ApplicationCommandData().Options[3].StringValue()
-
-					has := false
-					var use *discordgo.Channel
-					guild, err := s.Guild(i.GuildID)
-					if err == nil {
-						if channels, err := s.GuildChannels(guild.ID); err != nil {
-							s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-								Type: discordgo.InteractionResponseChannelMessageWithSource,
-								Data: &discordgo.InteractionResponseData{
-									Embeds: []*discordgo.MessageEmbed{
-										{
-											Author:      &discordgo.MessageEmbedAuthor{},
-											Color:       000000, // Green
-											Description: fmt.Sprintf("```%v```", err),
+					err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+						Type: discordgo.InteractionResponseModal,
+						Data: &discordgo.InteractionResponseData{
+							CustomID: "auctions",
+							Title:    "Auction Data",
+							Components: []discordgo.MessageComponent{
+								discordgo.ActionsRow{
+									Components: []discordgo.MessageComponent{
+										discordgo.TextInput{
+											CustomID:    "opinion",
+											Label:       "Username",
+											Style:       discordgo.TextInputShort,
+											Placeholder: "Username of said account.",
+											Required:    true,
+											MaxLength:   16,
+											MinLength:   1,
 										},
 									},
-									Flags: 1 << 6,
 								},
-							})
-						} else {
-							for _, channel := range channels {
-								if channel.Type == discordgo.ChannelTypeGuildCategory {
-									if strings.ToLower(channel.Name) == "auctions" {
-										use = channel
-										has = true
-									}
-								}
-							}
-						}
-
-						if !has {
-							if use, err = s.GuildChannelCreate(guild.ID, "auctions", discordgo.ChannelTypeGuildCategory); err != nil {
-								s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-									Type: discordgo.InteractionResponseChannelMessageWithSource,
-									Data: &discordgo.InteractionResponseData{
-										Embeds: []*discordgo.MessageEmbed{
-											{
-												Author:      &discordgo.MessageEmbedAuthor{},
-												Color:       000000, // Green
-												Description: fmt.Sprintf("```%v```", err),
-											},
-										},
-										Flags: 1 << 6,
-									},
-								})
-							}
-						}
-
-						complex, err := s.GuildChannelCreate(guild.ID, name, discordgo.ChannelTypeGuildText)
-						if err == nil {
-							_, err := s.ChannelEditComplex(complex.ID, &discordgo.ChannelEdit{
-								ParentID: use.ID,
-							})
-
-							if err == nil {
-								message, err := s.ChannelMessageSendEmbed(complex.ID, &discordgo.MessageEmbed{
-									Author: &discordgo.MessageEmbedAuthor{},
-									Color:  000000, // Green
-									Description: fmt.Sprintf(``+`%v`+`
-Starting Bid: $%v ~ %v
-
-Info: %v
-
-How to bid?
-Use the `+`/bid`+` command.`, "`"+name+"`", "`"+price+"`", "`"+types+"`", "`"+info+"`"),
-								})
-
-								if err == nil {
-									intV, err := strconv.Atoi(price)
-									if err != nil {
-										s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-											Type: discordgo.InteractionResponseChannelMessageWithSource,
-											Data: &discordgo.InteractionResponseData{
-												Embeds: []*discordgo.MessageEmbed{
-													{
-														Author:      &discordgo.MessageEmbedAuthor{},
-														Color:       000000, // Green
-														Description: fmt.Sprintf("```%v```", err),
-													},
-												},
-												Flags: 1 << 6,
-											},
-										})
-									} else {
-										Data.Data = append(Data.Data, Info{
-											ChannelID: complex.ID,
-											StartBid:  int64(intV),
-											Name:      name,
-											Type:      types,
-											Info:      info,
-											MessageID: message.ID,
-										})
-
-										Data.SaveConfig()
-										Data.LoadState()
-
-										s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-											Type: discordgo.InteractionResponseChannelMessageWithSource,
-											Data: &discordgo.InteractionResponseData{
-												Embeds: []*discordgo.MessageEmbed{
-													{
-														Author:      &discordgo.MessageEmbedAuthor{},
-														Color:       000000, // Green
-														Description: fmt.Sprintf("%v Created succesfully.", name),
-													},
-												},
-												Flags: 1 << 6,
-											},
-										})
-									}
-								} else {
-									s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-										Type: discordgo.InteractionResponseChannelMessageWithSource,
-										Data: &discordgo.InteractionResponseData{
-											Embeds: []*discordgo.MessageEmbed{
-												{
-													Author:      &discordgo.MessageEmbedAuthor{},
-													Color:       000000, // Green
-													Description: fmt.Sprintf("```%v```", err),
-												},
-											},
-											Flags: 1 << 6,
-										},
-									})
-								}
-							} else {
-								s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-									Type: discordgo.InteractionResponseChannelMessageWithSource,
-									Data: &discordgo.InteractionResponseData{
-										Embeds: []*discordgo.MessageEmbed{
-											{
-												Author:      &discordgo.MessageEmbedAuthor{},
-												Color:       000000, // Green
-												Description: fmt.Sprintf("```%v```", err),
-											},
-										},
-										Flags: 1 << 6,
-									},
-								})
-							}
-						} else {
-							s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-								Type: discordgo.InteractionResponseChannelMessageWithSource,
-								Data: &discordgo.InteractionResponseData{
-									Embeds: []*discordgo.MessageEmbed{
-										{
-											Author:      &discordgo.MessageEmbedAuthor{},
-											Color:       000000, // Green
-											Description: fmt.Sprintf("```%v```", err),
+								discordgo.ActionsRow{
+									Components: []discordgo.MessageComponent{
+										discordgo.TextInput{
+											CustomID:  "price",
+											Label:     "How much will this cost?",
+											Style:     discordgo.TextInputShort,
+											Required:  true,
+											MaxLength: 35,
 										},
 									},
-									Flags: 1 << 6,
 								},
-							})
-						}
+								discordgo.ActionsRow{
+									Components: []discordgo.MessageComponent{
+										discordgo.TextInput{
+											CustomID:  "information",
+											Label:     "bans? gc? tid? basic information.",
+											Style:     discordgo.TextInputParagraph,
+											Required:  true,
+											MaxLength: 2000,
+										},
+									},
+								},
+							},
+						},
+					})
+					if err != nil {
+						panic(err)
 					}
 				}
 			}()
@@ -282,7 +142,26 @@ Use the `+`/bid`+` command.`, "`"+name+"`", "`"+price+"`", "`"+types+"`", "`"+in
 				if len(Data.Data) != 0 {
 					for e, Info := range Data.Data {
 						if Info.ChannelID == i.ChannelID {
-							if i.ApplicationCommandData().Options[0].IntValue() >= Info.StartBid {
+
+							if Info.Claimed {
+								s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+									Type: discordgo.InteractionResponseChannelMessageWithSource,
+									Data: &discordgo.InteractionResponseData{
+										Embeds: []*discordgo.MessageEmbed{
+											{
+												Author:      &discordgo.MessageEmbedAuthor{},
+												Color:       000000, // Green
+												Description: "This Auction is already claimed and you cannot bid any further.",
+											},
+										},
+										Flags: 1 << 6,
+									},
+								})
+								return
+							}
+
+							if i.ApplicationCommandData().Options[0].IntValue() > Info.StartBid+5 {
+
 								if Info.History == nil {
 									Info.History = append(Info.History, History{})
 								}
@@ -312,16 +191,9 @@ Use the `+`/bid`+` command.`, "`"+name+"`", "`"+price+"`", "`"+types+"`", "`"+in
 										})
 
 										s.ChannelMessageEditEmbed(Info.ChannelID, Info.MessageID, &discordgo.MessageEmbed{
-											Author: &discordgo.MessageEmbedAuthor{},
-											Color:  000000, // Green
-											Description: fmt.Sprintf(``+`%v`+`
-Current Bid: $%v ~ %v
-											
-Type: %v
-Info: %v
-											
-How to bid?
-Use the `+`/bid`+` command.`, "`"+Info.Name+"`", "`"+fmt.Sprintf("%v", i.ApplicationCommandData().Options[0].IntValue())+"`", "<@"+id+">", "`"+Info.Type+"`", "`"+Info.Info+"`")})
+											Author:      &discordgo.MessageEmbedAuthor{},
+											Color:       000000, // Green
+											Description: fmt.Sprintf("`%v`\nCurrent Bid: `$%v` ~ <@%v>\n\n```%v```\nHow to bid?\nUse the `/bid` command.", Info.Name, i.ApplicationCommandData().Options[0].IntValue(), id, Info.Info)})
 									} else {
 										s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 											Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -372,12 +244,12 @@ Use the `+`/bid`+` command.`, "`"+Info.Name+"`", "`"+fmt.Sprintf("%v", i.Applica
 				}
 			}()
 		},
-		"add-mod": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		"add-staff": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
 				if !CheckAdmin(i, s) {
 					return
 				} else {
-					Data.IDs = append(Data.IDs, i.ApplicationCommandData().Options[0].UserValue(s).ID)
+					Data.IDs = append(Data.IDs, i.ApplicationCommandData().Options[0].RoleValue(s, i.GuildID).ID)
 
 					Data.SaveConfig()
 					Data.LoadState()
@@ -398,12 +270,12 @@ Use the `+`/bid`+` command.`, "`"+Info.Name+"`", "`"+fmt.Sprintf("%v", i.Applica
 				}
 			}()
 		},
-		"remove-mod": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		"remove-staff": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
 				if !CheckAdmin(i, s) {
 					return
 				} else {
-					Data.IDs = remove(Data.IDs, i.ApplicationCommandData().Options[0].UserValue(s).ID)
+					Data.IDs = remove(Data.IDs, i.ApplicationCommandData().Options[0].RoleValue(s, i.GuildID).ID)
 					Data.SaveConfig()
 					Data.LoadState()
 
@@ -476,14 +348,119 @@ Use the `+`/bid`+` command.`, "`"+Info.Name+"`", "`"+fmt.Sprintf("%v", i.Applica
 				if !CheckAdmin(i, s) {
 					return
 				} else {
-					for _, data := range Data.Data {
+					for value, data := range Data.Data {
 						if data.History != nil {
 							if data.ChannelID == i.ChannelID {
-								s.ChannelMessageSendEmbed(data.ChannelID, &discordgo.MessageEmbed{
-									Author:      &discordgo.MessageEmbedAuthor{},
-									Color:       000000, // Green
-									Description: fmt.Sprintf(`<@%v> Has outbidded %v people! make a ticket to claim your user.`, data.History[len(data.History)-1].Bidder, "`"+fmt.Sprintf("%v", len(data.History))+"`")})
+								if !data.Claimed {
+									s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+										Type: discordgo.InteractionResponseChannelMessageWithSource,
+										Data: &discordgo.InteractionResponseData{
+											Embeds: []*discordgo.MessageEmbed{
+												{
+													Author:      &discordgo.MessageEmbedAuthor{},
+													Color:       000000, // Green
+													Description: fmt.Sprintf(`<@%v> Has outbidded %v people! make a ticket to claim your user.`, data.History[len(data.History)-1].Bidder, "`"+fmt.Sprintf("%v", len(data.History))+"`"),
+												},
+											},
+										},
+									})
+
+									Data.Data[value].Claimed = true
+									Data.SaveConfig()
+									Data.LoadState()
+
+									if roles, err := s.GuildRoles(i.GuildID); err != nil {
+										fmt.Println(err)
+									} else {
+										for _, info := range roles {
+											if err := s.ChannelPermissionSet(data.ChannelID, info.ID, discordgo.PermissionOverwriteTypeRole, discordgo.PermissionViewChannel, discordgo.PermissionSendMessages); err != nil {
+												fmt.Println(err)
+											}
+										}
+									}
+
+									if user, err := s.User(data.History[len(data.History)-1].Bidder); err != nil {
+										fmt.Println(err)
+									} else {
+										if channel, err := s.GuildChannelCreate(i.GuildID, user.Username, discordgo.ChannelTypeGuildText); err != nil {
+											fmt.Println(err)
+										} else {
+
+											var perms []*discordgo.PermissionOverwrite = []*discordgo.PermissionOverwrite{
+												{
+													ID:    i.GuildID,
+													Type:  discordgo.PermissionOverwriteTypeRole,
+													Deny:  discordgo.PermissionViewChannel,
+													Allow: discordgo.PermissionChangeNickname,
+												},
+												{
+													ID:    user.ID,
+													Type:  discordgo.PermissionOverwriteTypeMember,
+													Deny:  discordgo.PermissionBanMembers,
+													Allow: discordgo.PermissionViewChannel,
+												},
+											}
+
+											for _, roles := range Data.IDs {
+												perms = append(perms, &discordgo.PermissionOverwrite{
+													ID:    roles,
+													Type:  discordgo.PermissionOverwriteTypeRole,
+													Deny:  discordgo.PermissionMentionEveryone,
+													Allow: discordgo.PermissionViewChannel,
+												})
+											}
+
+											if _, err := s.ChannelEditComplex(channel.ID, &discordgo.ChannelEdit{
+												PermissionOverwrites: perms,
+											}); err != nil {
+												fmt.Println(err)
+											}
+
+											s.ChannelMessageSendComplex(channel.ID, &discordgo.MessageSend{
+												Content: "@here",
+												Embeds: []*discordgo.MessageEmbed{
+													{
+														Author:      &discordgo.MessageEmbedAuthor{},
+														Color:       000000, // Green
+														Description: fmt.Sprintf(`Welcome <@%v> an admin will be with you shortly!`, user.ID),
+													},
+												},
+											})
+										}
+									}
+
+									return
+								} else {
+									s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+										Type: discordgo.InteractionResponseChannelMessageWithSource,
+										Data: &discordgo.InteractionResponseData{
+											Embeds: []*discordgo.MessageEmbed{
+												{
+													Author:      &discordgo.MessageEmbedAuthor{},
+													Color:       000000, // Green
+													Description: "This Auction is already Claimed.",
+												},
+											},
+											Flags: 1 << 6,
+										},
+									})
+									return
+								}
 							}
+						} else {
+							s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+								Type: discordgo.InteractionResponseChannelMessageWithSource,
+								Data: &discordgo.InteractionResponseData{
+									Embeds: []*discordgo.MessageEmbed{
+										{
+											Author:      &discordgo.MessageEmbedAuthor{},
+											Color:       000000, // Green
+											Description: "```Cannot bin a name with no bids!```",
+										},
+									},
+									Flags: 1 << 6,
+								},
+							})
 						}
 					}
 				}
