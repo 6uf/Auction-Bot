@@ -340,6 +340,12 @@ var (
 							Data.Data[e].History = update
 							Data.SaveConfig()
 							Data.LoadState()
+
+							s.ChannelMessageEditEmbed(data.ChannelID, data.MessageID, &discordgo.MessageEmbed{
+								Author:      &discordgo.MessageEmbedAuthor{},
+								Color:       000000, // Green
+								Description: fmt.Sprintf("`%v`\nCurrent Bid: `$%v` ~ <@%v>\n\n```%v```\nHow to bid?\nUse the `/bid` command.", data.History[len(data.History)].Bidder, data.History[len(data.History)].Bid, id, data.Info)})
+
 							break
 						}
 					}
@@ -362,7 +368,7 @@ var (
 												{
 													Author:      &discordgo.MessageEmbedAuthor{},
 													Color:       000000, // Green
-													Description: fmt.Sprintf(`<@%v> Has outbidded %v people! make a ticket to claim your user.`, data.History[len(data.History)-1].Bidder, "`"+fmt.Sprintf("%v", len(data.History))+"`"),
+													Description: fmt.Sprintf(`<@%v> Has outbidded %v people!`, data.History[len(data.History)-1].Bidder, "`"+fmt.Sprintf("%v", len(data.History))+"`"),
 												},
 											},
 										},
