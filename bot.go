@@ -313,6 +313,7 @@ var (
 					Data.SaveConfig()
 					Data.LoadState()
 
+					s.ChannelMessageSend(i.ChannelID, "Couldnt delete channel, it isnt a auction.")
 				}
 			}()
 		},
