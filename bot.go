@@ -341,12 +341,36 @@ var (
 							Data.SaveConfig()
 							Data.LoadState()
 
+							s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+								Type: discordgo.InteractionResponseChannelMessageWithSource,
+								Data: &discordgo.InteractionResponseData{
+									Embeds: []*discordgo.MessageEmbed{
+										{
+											Author:      &discordgo.MessageEmbedAuthor{},
+											Color:       000000, // Green
+											Description: fmt.Sprintf("```Succesfully removed %v Bid(s)```", i.ApplicationCommandData().Options[0].UserValue(s).Username),
+										},
+									},
+									Flags: 1 << 6,
+								},
+							})
+
 							for _, data := range Data.Data {
 								if data.ChannelID == i.ChannelID {
-									s.ChannelMessageEditEmbed(data.ChannelID, data.MessageID, &discordgo.MessageEmbed{
-										Author:      &discordgo.MessageEmbedAuthor{},
-										Color:       000000, // Green
-										Description: fmt.Sprintf("`%v`\nCurrent Bid: `$%v` ~ <@%v>\n\n```diff\n%v```\nHow to bid?\nUse the `/bid` command.", data.Name, data.History[len(data.History)-1].Bid, data.History[len(data.History)-1].Bidder, data.Info)})
+									if len(data.History) == 0 {
+										s.ChannelMessageEditEmbed(data.ChannelID, data.MessageID, &discordgo.MessageEmbed{
+											Author:      &discordgo.MessageEmbedAuthor{},
+											Color:       000000, // Green
+											Description: fmt.Sprintf("`%v`\nStarting Bid: `$%v`\n\n```diff\n%v```\nHow to bid?\nUse the `/bid` command.", data.Name, data.StartBid, data.Info),
+										})
+									} else {
+										if data.ChannelID == i.ChannelID {
+											s.ChannelMessageEditEmbed(data.ChannelID, data.MessageID, &discordgo.MessageEmbed{
+												Author:      &discordgo.MessageEmbedAuthor{},
+												Color:       000000, // Green
+												Description: fmt.Sprintf("`%v`\nCurrent Bid: `$%v` ~ <@%v>\n\n```diff\n%v```\nHow to bid?\nUse the `/bid` command.", data.Name, data.History[len(data.History)-1].Bid, data.History[len(data.History)-1].Bidder, data.Info)})
+										}
+									}
 									break
 								}
 							}
