@@ -304,6 +304,8 @@ var (
 					for _, data := range Data.Data {
 						if data.ChannelID != i.ChannelID {
 							update = append(update, data)
+						} else {
+							s.ChannelDelete(i.ChannelID)
 						}
 					}
 
@@ -311,7 +313,6 @@ var (
 					Data.SaveConfig()
 					Data.LoadState()
 
-					s.ChannelDelete(i.ChannelID)
 				}
 			}()
 		},
