@@ -490,9 +490,9 @@ func CheckAdmin(i *discordgo.InteractionCreate, s *discordgo.Session) bool {
 			if member, err := s.GuildMember(i.GuildID, id); err != nil {
 				fmt.Println(err)
 			} else {
-				for _, roles := range guild.Roles {
+				for _, roles := range Data.IDs {
 					for _, memberRole := range member.Roles {
-						if memberRole == roles.ID {
+						if memberRole == roles {
 							return true
 						}
 					}
