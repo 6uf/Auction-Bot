@@ -67,12 +67,14 @@ Made By: Liza
 Commands :
              
 /add-staff
+/remove-staff
 /auction-create
 /bid
 /bin-name
 /delete-auction
-/remove-staff
 /revert-user
+/ban
+/unban
 
 `)
 	Data.LoadState()
