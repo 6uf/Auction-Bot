@@ -21,18 +21,24 @@ type Channels struct {
 }
 
 type Info struct {
-	ChannelID string    `json:"channelID"`
-	History   []History `json:"bidhistory"`
-	StartBid  int64     `json:"startbid"`
-	Name      string    `json:"name"`
-	Info      string    `json:"info"`
-	MessageID string    `json:"messageid"`
-	Claimed   bool      `json:"claimed"`
+	ChannelID string       `json:"channelID"`
+	History   []History    `json:"bidhistory"`
+	StartBid  int64        `json:"startbid"`
+	Name      string       `json:"name"`
+	Info      string       `json:"info"`
+	MessageID string       `json:"messageid"`
+	Claimed   bool         `json:"claimed"`
+	Roles     RoleSpecific `json:"roleinfo"`
 }
 
 type History struct {
 	Bid    int64  `json:"bid"`
 	Bidder string `json:"bidder"`
+}
+
+type RoleSpecific struct {
+	Role   bool   `json:"roleSP"`
+	RoleID string `json:"roleid"`
 }
 
 type Components struct {
@@ -103,6 +109,7 @@ func main() {
 			var User string
 			var Price int
 			var Information string
+			var Role string
 
 			for _, data := range i.ModalSubmitData().Components {
 				if data, err := data.MarshalJSON(); err == nil {
@@ -121,6 +128,8 @@ func main() {
 						}
 					case "information":
 						Information += Info.Comp[0].Value
+					case "roleid":
+						Role = Info.Comp[0].Value
 					}
 				}
 			}
@@ -184,6 +193,19 @@ func main() {
 							Description: fmt.Sprintf("`%v`\nStarting Bid: `$%v`\n\n```diff\n%v```\nHow to bid?\nUse the `/bid` command.", User, Price, Information),
 						},
 						); err == nil {
+							var ROLE RoleSpecific
+							if Role != "" {
+								ROLE = RoleSpecific{
+									Role:   true,
+									RoleID: Role,
+								}
+							} else {
+								ROLE = RoleSpecific{
+									Role:   false,
+									RoleID: "",
+								}
+							}
+
 							Data.Data = append(Data.Data, Info{
 								ChannelID: complex.ID,
 								StartBid:  int64(Price),
@@ -191,6 +213,7 @@ func main() {
 								Info:      Information,
 								MessageID: message.ID,
 								Claimed:   false,
+								Roles:     ROLE,
 							})
 
 							Data.SaveConfig()

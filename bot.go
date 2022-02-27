@@ -141,22 +141,36 @@ var (
 								discordgo.ActionsRow{
 									Components: []discordgo.MessageComponent{
 										discordgo.TextInput{
-											CustomID:  "price",
-											Label:     "How much will this cost?",
-											Style:     discordgo.TextInputShort,
-											Required:  true,
-											MaxLength: 35,
+											CustomID:    "price",
+											Label:       "How much will this cost?",
+											Style:       discordgo.TextInputShort,
+											Placeholder: "25",
+											Required:    true,
+											MaxLength:   35,
 										},
 									},
 								},
 								discordgo.ActionsRow{
 									Components: []discordgo.MessageComponent{
 										discordgo.TextInput{
-											CustomID:  "information",
-											Label:     "bans? gc? tid? basic information.",
-											Style:     discordgo.TextInputParagraph,
-											Required:  true,
-											MaxLength: 2000,
+											CustomID:    "information",
+											Label:       "bans? gc? tid? basic information.",
+											Style:       discordgo.TextInputParagraph,
+											Placeholder: "clean user history....",
+											Required:    true,
+											MaxLength:   2000,
+										},
+									},
+								},
+								discordgo.ActionsRow{
+									Components: []discordgo.MessageComponent{
+										discordgo.TextInput{
+											CustomID:    "roleid",
+											Label:       "RoleID leave empty if unused.",
+											Style:       discordgo.TextInputShort,
+											Placeholder: "12345678910",
+											Required:    false,
+											MaxLength:   35,
 										},
 									},
 								},
@@ -217,7 +231,7 @@ var (
 								return
 							}
 
-							if i.ApplicationCommandData().Options[0].IntValue() >= Info.StartBid+5 {
+							if i.ApplicationCommandData().Options[0].IntValue() >= Info.StartBid {
 
 								if Info.History == nil {
 									Info.History = append(Info.History, History{})
