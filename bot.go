@@ -217,7 +217,7 @@ var (
 								return
 							}
 
-							if i.ApplicationCommandData().Options[0].IntValue() > Info.StartBid+5 {
+							if i.ApplicationCommandData().Options[0].IntValue() >= Info.StartBid+5 {
 
 								if Info.History == nil {
 									Info.History = append(Info.History, History{})
