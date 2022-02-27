@@ -179,6 +179,23 @@ var (
 					id = i.Member.User.ID
 				}
 
+				if BidBan(i) {
+					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+						Type: discordgo.InteractionResponseChannelMessageWithSource,
+						Data: &discordgo.InteractionResponseData{
+							Embeds: []*discordgo.MessageEmbed{
+								{
+									Author:      &discordgo.MessageEmbedAuthor{},
+									Color:       000000, // Green
+									Description: "You are banned from placing any bids.",
+								},
+							},
+							Flags: 1 << 6,
+						},
+					})
+					return
+				}
+
 				if len(Data.Data) != 0 {
 					for e, Info := range Data.Data {
 						if Info.ChannelID == i.ChannelID {
@@ -731,6 +748,24 @@ var (
 	}
 )
 
+func BidBan(i *discordgo.InteractionCreate) bool {
+	var id string
+
+	if i.Member == nil {
+		id = i.User.ID
+	} else {
+		id = i.Member.User.ID
+	}
+
+	for _, roles := range Data.Bans {
+		if id == roles {
+			return true
+		}
+	}
+
+	return false
+}
+
 func CheckAdmin(i *discordgo.InteractionCreate, s *discordgo.Session) (bool, string) {
 	var id string
 
@@ -747,13 +782,6 @@ func CheckAdmin(i *discordgo.InteractionCreate, s *discordgo.Session) (bool, str
 		if guild.OwnerID == id {
 			return true, "Authorized"
 		} else {
-
-			for _, roles := range Data.Bans {
-				if id == roles {
-					return false, "You are banned from using the bot."
-				}
-			}
-
 			if member, err := s.GuildMember(i.GuildID, id); err != nil {
 				fmt.Println(err)
 			} else {
