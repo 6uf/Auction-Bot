@@ -669,7 +669,7 @@ var (
 								{
 									Author:      &discordgo.MessageEmbedAuthor{},
 									Color:       000000, // Green
-									Description: fmt.Sprintf("```Succesfully added %v to bans```", i.User.Username),
+									Description: fmt.Sprintf("```Succesfully added <@%v> to bans```", id),
 								},
 							},
 							Flags: 1 << 6,
@@ -719,7 +719,7 @@ var (
 								{
 									Author:      &discordgo.MessageEmbedAuthor{},
 									Color:       000000, // Green
-									Description: fmt.Sprintf("```Succesfully removed %v from bans```", i.User.Username),
+									Description: fmt.Sprintf("```Succesfully removed <@%v> from bans```", id),
 								},
 							},
 							Flags: 1 << 6,
