@@ -647,14 +647,6 @@ var (
 		},
 		"ban": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
-				var id string
-
-				if i.Member == nil {
-					id = i.User.ID
-				} else {
-					id = i.Member.User.ID
-				}
-
 				if data, payload := CheckAdmin(i, s); !data {
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -674,7 +666,7 @@ var (
 
 					return
 				} else {
-					Data.Bans = append(Data.IDs, id)
+					Data.Bans = append(Data.IDs, i.ApplicationCommandData().Options[0].UserValue(s).ID)
 
 					Data.SaveConfig()
 					Data.LoadState()
@@ -686,7 +678,7 @@ var (
 								{
 									Author:      &discordgo.MessageEmbedAuthor{},
 									Color:       000000, // Green
-									Description: fmt.Sprintf("```Succesfully added <@%v> to bans```", id),
+									Description: "```Succesfully added <@%v> to bans```",
 								},
 							},
 							Flags: 1 << 6,
@@ -697,14 +689,6 @@ var (
 		},
 		"unban": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
-				var id string
-
-				if i.Member == nil {
-					id = i.User.ID
-				} else {
-					id = i.Member.User.ID
-				}
-
 				if data, payload := CheckAdmin(i, s); !data {
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -724,7 +708,7 @@ var (
 
 					return
 				} else {
-					Data.Bans = remove(Data.Bans, id)
+					Data.Bans = remove(Data.Bans, i.ApplicationCommandData().Options[0].UserValue(s).ID)
 
 					Data.SaveConfig()
 					Data.LoadState()
@@ -736,7 +720,7 @@ var (
 								{
 									Author:      &discordgo.MessageEmbedAuthor{},
 									Color:       000000, // Green
-									Description: fmt.Sprintf("```Succesfully removed <@%v> from bans```", id),
+									Description: "```Succesfully removed  from bans```",
 								},
 							},
 							Flags: 1 << 6,
