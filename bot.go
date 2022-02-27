@@ -666,7 +666,8 @@ var (
 
 					return
 				} else {
-					Data.Bans = append(Data.IDs, i.ApplicationCommandData().Options[0].UserValue(s).ID)
+					user := i.ApplicationCommandData().Options[0].UserValue(s)
+					Data.Bans = append(Data.IDs, user.ID)
 
 					Data.SaveConfig()
 					Data.LoadState()
@@ -678,7 +679,7 @@ var (
 								{
 									Author:      &discordgo.MessageEmbedAuthor{},
 									Color:       000000, // Green
-									Description: "```Succesfully added <@%v> to bans```",
+									Description: fmt.Sprintf("```Succesfully banned %v```", user.Username),
 								},
 							},
 							Flags: 1 << 6,
@@ -708,7 +709,8 @@ var (
 
 					return
 				} else {
-					Data.Bans = remove(Data.Bans, i.ApplicationCommandData().Options[0].UserValue(s).ID)
+					user := i.ApplicationCommandData().Options[0].UserValue(s)
+					Data.Bans = remove(Data.Bans, user.ID)
 
 					Data.SaveConfig()
 					Data.LoadState()
@@ -720,7 +722,7 @@ var (
 								{
 									Author:      &discordgo.MessageEmbedAuthor{},
 									Color:       000000, // Green
-									Description: "```Succesfully removed  from bans```",
+									Description: fmt.Sprintf("```Succesfully unbanned %v```", user.Username),
 								},
 							},
 							Flags: 1 << 6,
