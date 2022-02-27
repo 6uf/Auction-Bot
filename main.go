@@ -10,13 +10,14 @@ import (
 	"strconv"
 	"strings"
 
-	discordgo "github.com/Liza-Developer/tempbuild"
+	"github.com/bwmarrin/discordgo"
 )
 
 type Channels struct {
 	Data []Info
 	Key  string   `json:"BotKEY"`
 	IDs  []string `json:"verified"`
+	Bans []string `json:"banned"`
 }
 
 type Info struct {

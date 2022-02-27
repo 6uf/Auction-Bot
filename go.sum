@@ -1,7 +1,5 @@
-github.com/Liza-Developer/tempbuild v0.0.0-20220215022013-8d32cbd11c29 h1:cLJXL511unWr/ULH1BYl29EWl+UdGm3vwmFNVfKR3UI=
-github.com/Liza-Developer/tempbuild v0.0.0-20220215022013-8d32cbd11c29/go.mod h1:Wp87jl1jBipVtfG1lXuBGWylBcflYUrsdLh/3nWpFes=
-github.com/bwmarrin/discordgo v0.23.3-0.20210821175000-0fad116c6c2a h1:L7EuIzka83l5Z7LQqpSBfvmTNvUdr9tGhBa0mDBgSsc=
-github.com/bwmarrin/discordgo v0.23.3-0.20210821175000-0fad116c6c2a/go.mod h1:NJZpH+1AfhIcyQsPeuBKsUtYrRnjkyu0kIVMCHkZtRY=
+github.com/bwmarrin/discordgo v0.23.3-0.20220226201657-ca264d70ff42 h1:ieEnuEG8XnnaSgzf99Q38JUF8P14CzIojOvJn7w+VJU=
+github.com/bwmarrin/discordgo v0.23.3-0.20220226201657-ca264d70ff42/go.mod h1:NJZpH+1AfhIcyQsPeuBKsUtYrRnjkyu0kIVMCHkZtRY=
 github.com/gorilla/websocket v1.4.2 h1:+/TMaTYc4QFitKJxsQ7Yye35DkWvkdLcvGKqM+x0Ufc=
 github.com/gorilla/websocket v1.4.2/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b h1:7mWr3k41Qtv8XlltBkDkl8LoP3mpSgBW8BUoxtEdbXg=

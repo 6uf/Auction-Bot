@@ -5,7 +5,7 @@ import (
 	"sort"
 	"time"
 
-	discordgo "github.com/Liza-Developer/tempbuild"
+	"github.com/bwmarrin/discordgo"
 )
 
 var (
@@ -71,30 +71,56 @@ var (
 			Name:        "bin-name",
 			Description: "A command admins use to finish bidding.",
 		},
+		{
+			Name:        "ban",
+			Description: "ban a user from bidding.",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionMentionable,
+					Name:        "user",
+					Description: "User to ban",
+					Required:    true,
+				},
+			},
+		},
+		{
+			Name:        "unban",
+			Description: "unban a user from bidding.",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionMentionable,
+					Name:        "user",
+					Description: "User to unban",
+					Required:    true,
+				},
+			},
+		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"auction-create": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
-				var id string
-
-				if i.Member == nil {
-					id = i.User.ID
-				} else {
-					id = i.Member.User.ID
-				}
-
-				if !CheckAdmin(i, s) {
-					if member, err := s.GuildMember(i.GuildID, id); err == nil {
-						fmt.Printf("[auction-create]@%v - User used command Unsuccesfully.\n", member.User.Username)
-					}
+				if data, payload := CheckAdmin(i, s); !data {
+					fmt.Printf("[unban]@%v - User used command Unsuccesfully.\n", i.User.Username)
+					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+						Type: discordgo.InteractionResponseChannelMessageWithSource,
+						Data: &discordgo.InteractionResponseData{
+							Embeds: []*discordgo.MessageEmbed{
+								{
+									Author:      &discordgo.MessageEmbedAuthor{},
+									Color:       000000, // Green
+									Description: payload,
+									Timestamp:   time.Now().Format(time.RFC3339), // Discord wants ISO8601; RFC3339 is an extension of ISO8601 and should be completely compatible.
+									Title:       "Errors",
+								},
+							},
+							Flags: 1 << 6,
+						},
+					})
 
 					return
 				} else {
-					if member, err := s.GuildMember(i.GuildID, id); err == nil {
-						fmt.Printf("[auction-create]@%v - User used command succesfully.\n", member.User.Username)
-					}
-
+					fmt.Printf("[auction-create]@%v - User used command succesfully.\n", i.User.Username)
 					err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseModal,
 						Data: &discordgo.InteractionResponseData{
@@ -155,9 +181,7 @@ var (
 					id = i.Member.User.ID
 				}
 
-				if member, err := s.GuildMember(i.GuildID, id); err == nil {
-					fmt.Printf("[bid]@%v - User used command succesfully.\n", member.User.Username)
-				}
+				fmt.Printf("[bid]@%v - User used command succesfully.\n", i.User.Username)
 
 				if len(Data.Data) != 0 {
 					for e, Info := range Data.Data {
@@ -266,25 +290,27 @@ var (
 		},
 		"add-staff": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
-				var id string
-
-				if i.Member == nil {
-					id = i.User.ID
-				} else {
-					id = i.Member.User.ID
-				}
-
-				if !CheckAdmin(i, s) {
-					if member, err := s.GuildMember(i.GuildID, id); err == nil {
-						fmt.Printf("[add-staff]@%v - User used command Unsuccesfully.\n", member.User.Username)
-					}
+				if data, payload := CheckAdmin(i, s); !data {
+					fmt.Printf("[unban]@%v - User used command Unsuccesfully.\n", i.User.Username)
+					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+						Type: discordgo.InteractionResponseChannelMessageWithSource,
+						Data: &discordgo.InteractionResponseData{
+							Embeds: []*discordgo.MessageEmbed{
+								{
+									Author:      &discordgo.MessageEmbedAuthor{},
+									Color:       000000, // Green
+									Description: payload,
+									Timestamp:   time.Now().Format(time.RFC3339), // Discord wants ISO8601; RFC3339 is an extension of ISO8601 and should be completely compatible.
+									Title:       "Errors",
+								},
+							},
+							Flags: 1 << 6,
+						},
+					})
 
 					return
 				} else {
-					if member, err := s.GuildMember(i.GuildID, id); err == nil {
-						fmt.Printf("[add-staff]@%v - User used command succesfully.\n", member.User.Username)
-					}
-
+					fmt.Printf("[add-staff]@%v - User used command succesfully.\n", i.User.Username)
 					Role := i.ApplicationCommandData().Options[0].RoleValue(s, i.GuildID)
 					Data.IDs = append(Data.IDs, Role.ID)
 
@@ -309,25 +335,27 @@ var (
 		},
 		"remove-staff": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
-				var id string
-
-				if i.Member == nil {
-					id = i.User.ID
-				} else {
-					id = i.Member.User.ID
-				}
-
-				if !CheckAdmin(i, s) {
-					if member, err := s.GuildMember(i.GuildID, id); err == nil {
-						fmt.Printf("[remove-staff]@%v - User used command Unsuccesfully.\n", member.User.Username)
-					}
+				if data, payload := CheckAdmin(i, s); !data {
+					fmt.Printf("[unban]@%v - User used command Unsuccesfully.\n", i.User.Username)
+					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+						Type: discordgo.InteractionResponseChannelMessageWithSource,
+						Data: &discordgo.InteractionResponseData{
+							Embeds: []*discordgo.MessageEmbed{
+								{
+									Author:      &discordgo.MessageEmbedAuthor{},
+									Color:       000000, // Green
+									Description: payload,
+									Timestamp:   time.Now().Format(time.RFC3339), // Discord wants ISO8601; RFC3339 is an extension of ISO8601 and should be completely compatible.
+									Title:       "Errors",
+								},
+							},
+							Flags: 1 << 6,
+						},
+					})
 
 					return
 				} else {
-					if member, err := s.GuildMember(i.GuildID, id); err == nil {
-						fmt.Printf("[remove-staff]@%v - User used command succesfully.\n", member.User.Username)
-					}
-
+					fmt.Printf("[remove-staff]@%v - User used command succesfully.\n", i.User.Username)
 					Data.IDs = remove(Data.IDs, i.ApplicationCommandData().Options[0].RoleValue(s, i.GuildID).ID)
 					Data.SaveConfig()
 					Data.LoadState()
@@ -350,25 +378,27 @@ var (
 		},
 		"delete-auction": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
-				var id string
-
-				if i.Member == nil {
-					id = i.User.ID
-				} else {
-					id = i.Member.User.ID
-				}
-
-				if !CheckAdmin(i, s) {
-					if member, err := s.GuildMember(i.GuildID, id); err == nil {
-						fmt.Printf("[delete-auction]@%v - User used command Unsuccesfully.\n", member.User.Username)
-					}
+				if data, payload := CheckAdmin(i, s); !data {
+					fmt.Printf("[unban]@%v - User used command Unsuccesfully.\n", i.User.Username)
+					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+						Type: discordgo.InteractionResponseChannelMessageWithSource,
+						Data: &discordgo.InteractionResponseData{
+							Embeds: []*discordgo.MessageEmbed{
+								{
+									Author:      &discordgo.MessageEmbedAuthor{},
+									Color:       000000, // Green
+									Description: payload,
+									Timestamp:   time.Now().Format(time.RFC3339), // Discord wants ISO8601; RFC3339 is an extension of ISO8601 and should be completely compatible.
+									Title:       "Errors",
+								},
+							},
+							Flags: 1 << 6,
+						},
+					})
 
 					return
 				} else {
-					if member, err := s.GuildMember(i.GuildID, id); err == nil {
-						fmt.Printf("[delete-auction]@%v - User used command succesfully.\n", member.User.Username)
-					}
-
+					fmt.Printf("[delete-auction]@%v - User used command succesfully.\n", i.User.Username)
 					var update []Info
 					for _, data := range Data.Data {
 						if data.ChannelID != i.ChannelID {
@@ -388,27 +418,27 @@ var (
 		},
 		"revert-user": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
-				var id string
-
-				if i.Member == nil {
-					id = i.User.ID
-				} else {
-					id = i.Member.User.ID
-				}
-
-				if !CheckAdmin(i, s) {
-
-					if member, err := s.GuildMember(i.GuildID, id); err == nil {
-						fmt.Printf("[revert-user]@%v - User used command Unsuccesfully.\n", member.User.Username)
-					}
+				if data, payload := CheckAdmin(i, s); !data {
+					fmt.Printf("[unban]@%v - User used command Unsuccesfully.\n", i.User.Username)
+					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+						Type: discordgo.InteractionResponseChannelMessageWithSource,
+						Data: &discordgo.InteractionResponseData{
+							Embeds: []*discordgo.MessageEmbed{
+								{
+									Author:      &discordgo.MessageEmbedAuthor{},
+									Color:       000000, // Green
+									Description: payload,
+									Timestamp:   time.Now().Format(time.RFC3339), // Discord wants ISO8601; RFC3339 is an extension of ISO8601 and should be completely compatible.
+									Title:       "Errors",
+								},
+							},
+							Flags: 1 << 6,
+						},
+					})
 
 					return
 				} else {
-
-					if member, err := s.GuildMember(i.GuildID, id); err == nil {
-						fmt.Printf("[revert-user]@%v - User used command succesfully.\n", member.User.Username)
-					}
-
+					fmt.Printf("[revert-user]@%v - User used command succesfully.\n", i.User.Username)
 					var id = i.ApplicationCommandData().Options[0].UserValue(s).ID
 					var update []History
 					for e, data := range Data.Data {
@@ -469,25 +499,27 @@ var (
 		},
 		"bin-name": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
-				var id string
-
-				if i.Member == nil {
-					id = i.User.ID
-				} else {
-					id = i.Member.User.ID
-				}
-
-				if !CheckAdmin(i, s) {
-					if member, err := s.GuildMember(i.GuildID, id); err == nil {
-						fmt.Printf("[bin-name]@%v - User used command Unsuccesfully.\n", member.User.Username)
-					}
+				if data, payload := CheckAdmin(i, s); !data {
+					fmt.Printf("[unban]@%v - User used command Unsuccesfully.\n", i.User.Username)
+					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+						Type: discordgo.InteractionResponseChannelMessageWithSource,
+						Data: &discordgo.InteractionResponseData{
+							Embeds: []*discordgo.MessageEmbed{
+								{
+									Author:      &discordgo.MessageEmbedAuthor{},
+									Color:       000000, // Green
+									Description: payload,
+									Timestamp:   time.Now().Format(time.RFC3339), // Discord wants ISO8601; RFC3339 is an extension of ISO8601 and should be completely compatible.
+									Title:       "Errors",
+								},
+							},
+							Flags: 1 << 6,
+						},
+					})
 
 					return
 				} else {
-					if member, err := s.GuildMember(i.GuildID, id); err == nil {
-						fmt.Printf("[bin-name]@%v - User used command succesfully.\n", member.User.Username)
-					}
-
+					fmt.Printf("[bin-name]@%v - User used command succesfully.\n", i.User.Username)
 					for value, data := range Data.Data {
 						if data.History != nil {
 							if data.ChannelID == i.ChannelID {
@@ -610,10 +642,114 @@ var (
 				}
 			}()
 		},
+		"ban": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			go func() {
+				var id string
+
+				if i.Member == nil {
+					id = i.User.ID
+				} else {
+					id = i.Member.User.ID
+				}
+
+				if data, payload := CheckAdmin(i, s); !data {
+					fmt.Printf("[unban]@%v - User used command Unsuccesfully.\n", i.User.Username)
+					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+						Type: discordgo.InteractionResponseChannelMessageWithSource,
+						Data: &discordgo.InteractionResponseData{
+							Embeds: []*discordgo.MessageEmbed{
+								{
+									Author:      &discordgo.MessageEmbedAuthor{},
+									Color:       000000, // Green
+									Description: payload,
+									Timestamp:   time.Now().Format(time.RFC3339), // Discord wants ISO8601; RFC3339 is an extension of ISO8601 and should be completely compatible.
+									Title:       "Errors",
+								},
+							},
+							Flags: 1 << 6,
+						},
+					})
+
+					return
+				} else {
+					fmt.Printf("[ban]@%v - User used command succesfully.\n", i.User.Username)
+					Data.Bans = append(Data.IDs, id)
+
+					Data.SaveConfig()
+					Data.LoadState()
+
+					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+						Type: discordgo.InteractionResponseChannelMessageWithSource,
+						Data: &discordgo.InteractionResponseData{
+							Embeds: []*discordgo.MessageEmbed{
+								{
+									Author:      &discordgo.MessageEmbedAuthor{},
+									Color:       000000, // Green
+									Description: fmt.Sprintf("```Succesfully added %v to bans```", i.User.Username),
+								},
+							},
+							Flags: 1 << 6,
+						},
+					})
+				}
+			}()
+		},
+		"unban": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			go func() {
+				var id string
+
+				if i.Member == nil {
+					id = i.User.ID
+				} else {
+					id = i.Member.User.ID
+				}
+
+				if data, payload := CheckAdmin(i, s); !data {
+					fmt.Printf("[unban]@%v - User used command Unsuccesfully.\n", i.User.Username)
+					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+						Type: discordgo.InteractionResponseChannelMessageWithSource,
+						Data: &discordgo.InteractionResponseData{
+							Embeds: []*discordgo.MessageEmbed{
+								{
+									Author:      &discordgo.MessageEmbedAuthor{},
+									Color:       000000, // Green
+									Description: payload,
+									Timestamp:   time.Now().Format(time.RFC3339), // Discord wants ISO8601; RFC3339 is an extension of ISO8601 and should be completely compatible.
+									Title:       "Errors",
+								},
+							},
+							Flags: 1 << 6,
+						},
+					})
+
+					return
+				} else {
+					fmt.Printf("[unban]@%v - User used command Unsuccesfully.\n", i.User.Username)
+					Data.Bans = remove(Data.Bans, id)
+
+					Data.SaveConfig()
+					Data.LoadState()
+
+					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+						Type: discordgo.InteractionResponseChannelMessageWithSource,
+						Data: &discordgo.InteractionResponseData{
+							Embeds: []*discordgo.MessageEmbed{
+								{
+									Author:      &discordgo.MessageEmbedAuthor{},
+									Color:       000000, // Green
+									Description: fmt.Sprintf("```Succesfully removed %v from bans```", i.User.Username),
+								},
+							},
+							Flags: 1 << 6,
+						},
+					})
+				}
+			}()
+		},
 	}
 )
 
-func CheckAdmin(i *discordgo.InteractionCreate, s *discordgo.Session) bool {
+func CheckAdmin(i *discordgo.InteractionCreate, s *discordgo.Session) (bool, string) {
 	var id string
 
 	if i.Member == nil {
@@ -624,18 +760,26 @@ func CheckAdmin(i *discordgo.InteractionCreate, s *discordgo.Session) bool {
 
 	guild, err := s.Guild(i.GuildID)
 	if err != nil {
-		return false
+		return false, err.Error()
 	} else {
 		if guild.OwnerID == id {
-			return true
+			return true, "Authorized"
 		} else {
+
+			for _, roles := range Data.Bans {
+				if id == roles {
+					return false, "You are banned from using the bot."
+				}
+			}
+
 			if member, err := s.GuildMember(i.GuildID, id); err != nil {
 				fmt.Println(err)
 			} else {
+
 				for _, roles := range Data.IDs {
 					for _, memberRole := range member.Roles {
 						if memberRole == roles {
-							return true
+							return true, "Authorized"
 						}
 					}
 				}
@@ -643,23 +787,7 @@ func CheckAdmin(i *discordgo.InteractionCreate, s *discordgo.Session) bool {
 		}
 	}
 
-	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{
-			Embeds: []*discordgo.MessageEmbed{
-				{
-					Author:      &discordgo.MessageEmbedAuthor{},
-					Color:       000000, // Green
-					Description: "```You are not authorized to use this Bot.```",
-					Timestamp:   time.Now().Format(time.RFC3339), // Discord wants ISO8601; RFC3339 is an extension of ISO8601 and should be completely compatible.
-					Title:       "Errors",
-				},
-			},
-			Flags: 1 << 6,
-		},
-	})
-
-	return false
+	return false, "You are not authorized to use this bot"
 }
 
 func remove(l []string, item string) []string {
