@@ -213,7 +213,6 @@ var (
 				if len(Data.Data) != 0 {
 					for e, Info := range Data.Data {
 						if Info.ChannelID == i.ChannelID {
-
 							if Info.Claimed {
 								s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 									Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -229,6 +228,25 @@ var (
 									},
 								})
 								return
+							}
+
+							if Info.Roles.Role {
+								if !CheckRoleStatus(i, Info) {
+									s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+										Type: discordgo.InteractionResponseChannelMessageWithSource,
+										Data: &discordgo.InteractionResponseData{
+											Embeds: []*discordgo.MessageEmbed{
+												{
+													Author:      &discordgo.MessageEmbedAuthor{},
+													Color:       000000, // Green
+													Description: "Unable to bid, you do not have the specified role.",
+												},
+											},
+											Flags: 1 << 6,
+										},
+									})
+									return
+								}
 							}
 
 							if i.ApplicationCommandData().Options[0].IntValue() >= Info.StartBid {
@@ -747,6 +765,28 @@ var (
 		},
 	}
 )
+
+func CheckRoleStatus(i *discordgo.InteractionCreate, in Info) bool {
+	var id string
+
+	if i.Member == nil {
+		id = i.User.ID
+	} else {
+		id = i.Member.User.ID
+	}
+
+	if member, err := s.GuildMember(i.GuildID, id); err != nil {
+		fmt.Println(err)
+	} else {
+		for _, memberRole := range member.Roles {
+			if memberRole == in.Roles.RoleID {
+				return true
+			}
+		}
+	}
+
+	return false
+}
 
 func BidBan(i *discordgo.InteractionCreate) bool {
 	var id string
