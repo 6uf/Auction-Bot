@@ -101,7 +101,6 @@ var (
 		"auction-create": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
 				if data, payload := CheckAdmin(i, s); !data {
-					fmt.Printf("[unban]@%v - User used command Unsuccesfully.\n", i.User.Username)
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,
 						Data: &discordgo.InteractionResponseData{
@@ -120,7 +119,6 @@ var (
 
 					return
 				} else {
-					fmt.Printf("[auction-create]@%v - User used command succesfully.\n", i.User.Username)
 					err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseModal,
 						Data: &discordgo.InteractionResponseData{
@@ -180,8 +178,6 @@ var (
 				} else {
 					id = i.Member.User.ID
 				}
-
-				fmt.Printf("[bid]@%v - User used command succesfully.\n", i.User.Username)
 
 				if len(Data.Data) != 0 {
 					for e, Info := range Data.Data {
@@ -291,7 +287,6 @@ var (
 		"add-staff": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
 				if data, payload := CheckAdmin(i, s); !data {
-					fmt.Printf("[unban]@%v - User used command Unsuccesfully.\n", i.User.Username)
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,
 						Data: &discordgo.InteractionResponseData{
@@ -310,7 +305,6 @@ var (
 
 					return
 				} else {
-					fmt.Printf("[add-staff]@%v - User used command succesfully.\n", i.User.Username)
 					Role := i.ApplicationCommandData().Options[0].RoleValue(s, i.GuildID)
 					Data.IDs = append(Data.IDs, Role.ID)
 
@@ -336,7 +330,6 @@ var (
 		"remove-staff": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
 				if data, payload := CheckAdmin(i, s); !data {
-					fmt.Printf("[unban]@%v - User used command Unsuccesfully.\n", i.User.Username)
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,
 						Data: &discordgo.InteractionResponseData{
@@ -355,7 +348,6 @@ var (
 
 					return
 				} else {
-					fmt.Printf("[remove-staff]@%v - User used command succesfully.\n", i.User.Username)
 					Data.IDs = remove(Data.IDs, i.ApplicationCommandData().Options[0].RoleValue(s, i.GuildID).ID)
 					Data.SaveConfig()
 					Data.LoadState()
@@ -379,7 +371,6 @@ var (
 		"delete-auction": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
 				if data, payload := CheckAdmin(i, s); !data {
-					fmt.Printf("[unban]@%v - User used command Unsuccesfully.\n", i.User.Username)
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,
 						Data: &discordgo.InteractionResponseData{
@@ -398,7 +389,6 @@ var (
 
 					return
 				} else {
-					fmt.Printf("[delete-auction]@%v - User used command succesfully.\n", i.User.Username)
 					var update []Info
 					for _, data := range Data.Data {
 						if data.ChannelID != i.ChannelID {
@@ -419,7 +409,6 @@ var (
 		"revert-user": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
 				if data, payload := CheckAdmin(i, s); !data {
-					fmt.Printf("[unban]@%v - User used command Unsuccesfully.\n", i.User.Username)
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,
 						Data: &discordgo.InteractionResponseData{
@@ -438,7 +427,6 @@ var (
 
 					return
 				} else {
-					fmt.Printf("[revert-user]@%v - User used command succesfully.\n", i.User.Username)
 					var id = i.ApplicationCommandData().Options[0].UserValue(s).ID
 					var update []History
 					for e, data := range Data.Data {
@@ -500,7 +488,6 @@ var (
 		"bin-name": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			go func() {
 				if data, payload := CheckAdmin(i, s); !data {
-					fmt.Printf("[unban]@%v - User used command Unsuccesfully.\n", i.User.Username)
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,
 						Data: &discordgo.InteractionResponseData{
@@ -519,7 +506,6 @@ var (
 
 					return
 				} else {
-					fmt.Printf("[bin-name]@%v - User used command succesfully.\n", i.User.Username)
 					for value, data := range Data.Data {
 						if data.History != nil {
 							if data.ChannelID == i.ChannelID {
@@ -653,7 +639,6 @@ var (
 				}
 
 				if data, payload := CheckAdmin(i, s); !data {
-					fmt.Printf("[unban]@%v - User used command Unsuccesfully.\n", i.User.Username)
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,
 						Data: &discordgo.InteractionResponseData{
@@ -672,7 +657,6 @@ var (
 
 					return
 				} else {
-					fmt.Printf("[ban]@%v - User used command succesfully.\n", i.User.Username)
 					Data.Bans = append(Data.IDs, id)
 
 					Data.SaveConfig()
@@ -705,7 +689,6 @@ var (
 				}
 
 				if data, payload := CheckAdmin(i, s); !data {
-					fmt.Printf("[unban]@%v - User used command Unsuccesfully.\n", i.User.Username)
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,
 						Data: &discordgo.InteractionResponseData{
@@ -724,7 +707,6 @@ var (
 
 					return
 				} else {
-					fmt.Printf("[unban]@%v - User used command Unsuccesfully.\n", i.User.Username)
 					Data.Bans = remove(Data.Bans, id)
 
 					Data.SaveConfig()
