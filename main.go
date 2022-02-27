@@ -194,7 +194,7 @@ func main() {
 						},
 						); err == nil {
 							var ROLE RoleSpecific
-							if Role != "" {
+							if Role != "0" || len(Role) > 17 {
 								ROLE = RoleSpecific{
 									Role:   true,
 									RoleID: Role,

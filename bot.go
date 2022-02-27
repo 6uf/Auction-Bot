@@ -165,12 +165,12 @@ var (
 								discordgo.ActionsRow{
 									Components: []discordgo.MessageComponent{
 										discordgo.TextInput{
-											CustomID:    "roleid",
-											Label:       "RoleID leave empty if unused.",
-											Style:       discordgo.TextInputShort,
-											Placeholder: "12345678910",
-											Required:    false,
-											MaxLength:   35,
+											CustomID:  "roleid",
+											Label:     "RoleID leave 0 if unused.",
+											Style:     discordgo.TextInputShort,
+											Value:     "0",
+											Required:  false,
+											MaxLength: 35,
 										},
 									},
 								},
