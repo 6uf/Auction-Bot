@@ -210,6 +210,7 @@ var (
 					return
 				}
 
+				Data := Database.GetGuildData(i.GuildID)
 				if len(Data.Data) != 0 {
 					for e, Info := range Data.Data {
 						if Info.ChannelID == i.ChannelID {
@@ -262,8 +263,9 @@ var (
 											Bidder: id,
 										})
 
-										Data.SaveConfig()
-										Data.LoadState()
+										Database.UpdateInput(Data)
+										Database.SaveConfigClient()
+										Database.LoadStateClient()
 
 										s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 											Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -354,11 +356,13 @@ var (
 
 					return
 				} else {
+					Data := Database.GetGuildData(i.GuildID)
 					Role := i.ApplicationCommandData().Options[0].RoleValue(s, i.GuildID)
 					Data.IDs = append(Data.IDs, Role.ID)
 
-					Data.SaveConfig()
-					Data.LoadState()
+					Database.UpdateInput(Data)
+					Database.SaveConfigClient()
+					Database.LoadStateClient()
 
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -397,9 +401,12 @@ var (
 
 					return
 				} else {
+					Data := Database.GetGuildData(i.GuildID)
 					Data.IDs = remove(Data.IDs, i.ApplicationCommandData().Options[0].RoleValue(s, i.GuildID).ID)
-					Data.SaveConfig()
-					Data.LoadState()
+
+					Database.UpdateInput(Data)
+					Database.SaveConfigClient()
+					Database.LoadStateClient()
 
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -438,6 +445,8 @@ var (
 
 					return
 				} else {
+					Data := Database.GetGuildData(i.GuildID)
+
 					var update []Info
 					for _, data := range Data.Data {
 						if data.ChannelID != i.ChannelID {
@@ -448,8 +457,9 @@ var (
 					}
 
 					Data.Data = update
-					Data.SaveConfig()
-					Data.LoadState()
+					Database.UpdateInput(Data)
+					Database.SaveConfigClient()
+					Database.LoadStateClient()
 
 					s.ChannelMessageSend(i.ChannelID, "Couldnt delete channel, it isnt a auction.")
 				}
@@ -476,6 +486,7 @@ var (
 
 					return
 				} else {
+					Data := Database.GetGuildData(i.GuildID)
 					var id = i.ApplicationCommandData().Options[0].UserValue(s).ID
 					var update []History
 					for e, data := range Data.Data {
@@ -491,8 +502,9 @@ var (
 							})
 
 							Data.Data[e].History = update
-							Data.SaveConfig()
-							Data.LoadState()
+							Database.UpdateInput(Data)
+							Database.SaveConfigClient()
+							Database.LoadStateClient()
 
 							s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 								Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -555,6 +567,7 @@ var (
 
 					return
 				} else {
+					Data := Database.GetGuildData(i.GuildID)
 					for value, data := range Data.Data {
 						if data.History != nil {
 							if data.ChannelID == i.ChannelID {
@@ -573,8 +586,9 @@ var (
 									})
 
 									Data.Data[value].Claimed = true
-									Data.SaveConfig()
-									Data.LoadState()
+									Database.UpdateInput(Data)
+									Database.SaveConfigClient()
+									Database.LoadStateClient()
 
 									if roles, err := s.GuildRoles(i.GuildID); err != nil {
 										fmt.Println(err)
@@ -698,11 +712,14 @@ var (
 
 					return
 				} else {
+					Data := Database.GetGuildData(i.GuildID)
+
 					user := i.ApplicationCommandData().Options[0].UserValue(s)
 					Data.Bans = append(Data.IDs, user.ID)
 
-					Data.SaveConfig()
-					Data.LoadState()
+					Database.UpdateInput(Data)
+					Database.SaveConfigClient()
+					Database.LoadStateClient()
 
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -741,11 +758,14 @@ var (
 
 					return
 				} else {
+					Data := Database.GetGuildData(i.GuildID)
 					user := i.ApplicationCommandData().Options[0].UserValue(s)
+
 					Data.Bans = remove(Data.Bans, user.ID)
 
-					Data.SaveConfig()
-					Data.LoadState()
+					Database.UpdateInput(Data)
+					Database.SaveConfigClient()
+					Database.LoadStateClient()
 
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -797,6 +817,7 @@ func BidBan(i *discordgo.InteractionCreate) bool {
 		id = i.Member.User.ID
 	}
 
+	Data := Database.GetGuildData(i.GuildID)
 	for _, roles := range Data.Bans {
 		if id == roles {
 			return true
@@ -808,6 +829,7 @@ func BidBan(i *discordgo.InteractionCreate) bool {
 
 func CheckAdmin(i *discordgo.InteractionCreate, s *discordgo.Session) (bool, string) {
 	var id string
+	Data := Database.GetGuildData(i.GuildID)
 
 	if i.Member == nil {
 		id = i.User.ID
