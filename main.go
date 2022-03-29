@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"os/signal"
 	"runtime"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/gin-gonic/gin"
 )
 
 var (
@@ -64,10 +64,11 @@ func main() {
 		}
 	}
 
-	r := gin.New()
-	r.GET("/")
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt)
+	<-stop
 
-	r.Run()
+	fmt.Println("Closing the program. [Caused by error or natural ctrl+c usage]")
 }
 
 func clear() {
